@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>OCR Letter Recognition</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
+    <style>
+        body { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            font-family: Arial, sans-serif; 
+        }
+        #canvas-container { 
+            border: 2px solid black; 
+            margin: 20px; 
+        }
+        #predictions {
+            font-size: 18px;
+            margin: 10px;
+        }
+        button {
+            margin: 10px;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas-container">
+        <canvas id="canvas" width="280" height="280"></canvas>
+    </div>
+    <div id="predictions">Predicted Letters: </div>
+    <div>
+        <button onclick="predictLetter()">Predict</button>
+        <button onclick="clearCanvas()">Clear</button>
+    </div>
+
+    <script>
+        const canvas = new fabric.Canvas('canvas', {
+            isDrawingMode: true,
+            backgroundColor: 'white'
+        });
+        canvas.freeDrawingBrush.width = 15;
+        canvas.freeDrawingBrush.color = 'black';
+
+        function predictLetter() {
+            // Convert canvas to data URL
+            const dataURL = canvas.toDataURL({
+                format: 'png',
+                quality: 1.0,
+                multiplier: 1
+            });
+
+            // Send to server
+            fetch('/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ image: dataURL })
+            })
+            .then(response => response.json())
+            .then(data => {
+                let predText = data.predictions.map(
+                    pred => `${pred.letter}: ${(pred.probability * 100).toFixed(2)}%`
+                ).join(', ');
+                document.getElementById('predictions').textContent = 
+                    `Predicted Letters: ${predText}`;
+            })
+            .catch(error => {
+                document.getElementById('predictions').textContent = 
+                    `Error: ${error}`;
+            });
+        }
+
+        function clearCanvas() {
+            canvas.clear();
+            canvas.backgroundColor = 'white';
+            canvas.renderAll();
+            document.getElementById('predictions').textContent = 'Predicted Letters: ';
+        }
+    </script>
+</body>
+</html>
