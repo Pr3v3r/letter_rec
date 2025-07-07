@@ -1,3 +1,14 @@
 # letter_rec
 
-# An AI trained basic model to recognise the letter drawn.
+A simple Python program for optical character recognition on alphabet images.
+
+## 📄 Description
+
+This project loads an image of a single letter and predicts the character using a pretrained model.
+
+## 🛠️ Built With
+
+- Python 3.x  
+- TensorFlow / Keras  
+- NumPy, OpenCV
+
